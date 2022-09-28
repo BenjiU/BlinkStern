@@ -1,9 +1,9 @@
 class AttinyLED : public ILED {
 private:
-    int mGPIO;
+    uint8_t mGPIO;
     
 public:
-    AttinyLED(int gpio);
+    AttinyLED(uint8_t gpio);
     void on();
     void off();
 };

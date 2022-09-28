@@ -6,7 +6,8 @@
 //----------------------------------------------------------------------
 #define F_CPU 3686400 // Taktfrequenz / Frequency
 #include <avr/io.h>
-#include "timer.h"
+#include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 //Program
 #include "ILED.h"
@@ -14,48 +15,59 @@
 
 #include "IBlinkProgram.h"
 #include "BPLeuchten.h"
-//#include "BPBlinken.h"
+#include "BPBlinken.h"
 
 #include "BlinkeLicht.h"
 
-BlinkeLicht* gBL;
+void isr_enable_int0();
+void isr_enable_timer0();
 
+BlinkeLicht* gBL;
+volatile bool sleeping = true;
 //----------------------------------------------------------------------
 int main()
 {
-    AttinyLED ATLEDGruen(PB0);
-    AttinyLED ATLEDBlau(PB1);
-    AttinyLED ATLEDRot(PB3);
-    
+   
+    AttinyLED ATLEDGruen(PB1);   
+    AttinyLED ATLEDBlau(PB4);
+    AttinyLED ATLEDRot(PB0);
+   
     ILED* LEDGruen = &ATLEDGruen;
     ILED* LEDBlau = &ATLEDBlau;
     ILED* LEDRot = &ATLEDRot;
     
     ILED* LEDs[3];
-    LEDs[0] = LEDRot;
+    LEDs[0] = &ATLEDRot;
     LEDs[1] = LEDGruen;
     LEDs[2] = LEDBlau;
 
-
     BlinkeLicht BL;
-    gBL = &BL;
 
     BPLeuchten ProgramLeuchten(LEDs);
     BL.addProgramm(&ProgramLeuchten);
 
-    /*   
-    BL->addProgramm(new BPBlinken(&LEDs,1));
-    BL->addProgramm(new BPBlinken(&LEDs,10));
-    */
+    BPBlinken  ProgramBlinkenSchnell(LEDs,1);
+    BL.addProgramm(&ProgramBlinkenSchnell);
+
+    BPBlinken  ProgramBlinkenLangsam(LEDs,10);
+    BL.addProgramm(&ProgramBlinkenLangsam);
    
-    BL.start();
+    gBL = &BL;
 
-    //timer0_start();
-    //timer0_interrupt_enable();
-
+    isr_enable_int0();
+    isr_enable_timer0();
+    
+    GIFR |= (1<<INTF0);
+    sei();
+    
     do
 	{
-        
+        if(sleeping) {
+            MCUCR |= (1 << SM1) & ~(1 << SM0); // Sleep-Modus = Power Down
+            MCUCR |= (1 << SE); // set sleep enable
+            sleep_cpu(); // sleep
+            MCUCR &= ~(1 << SE); // reset sleep enable
+        }
 	}
 	while (true);
 }

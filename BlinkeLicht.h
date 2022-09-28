@@ -7,10 +7,10 @@ private:
     const uint8_t mCurrentProgramMax;
     
 public:
-    BlinkeLicht() : mCurrentProgramMax(5){
+    BlinkeLicht() : mCurrentProgramMax(3){
         mCurrentBlinkProgram = 0;
         mCurrentProgramIndex = 0;
-        for(uint8_t i = 0; i < mCurrentProgramMax; i++) {
+        for(uint8_t i = 0; i < 5; i++) {
             mBlinkPrograms[i] = 0;
         }
         mBlinkProgramsAddIndex = 0;
@@ -40,6 +40,7 @@ private:
     void stop_program() {
          if(mCurrentBlinkProgram != 0) {
             mCurrentBlinkProgram->stop();
+            mCurrentBlinkProgram = 0;
         }
     }
 

@@ -4,22 +4,24 @@ private:
     uint8_t mScale;     
 
 public:
-    BPBlinken(List<ILED*>* LEDs, uint8_t scale) {
+    BPBlinken(ILED** LEDs, uint8_t scale) {
         setLEDs(LEDs);
         mCurrentScaler = 1;
         mScale = scale;
+        mCurrentLEDmax = 3;
+        mCurrentLEDindex = 0;
     };
 
 private:
     void LEDOn() {
         if(mCurrentLED != 0) {
-            (*mCurrentLED)->on();
+            mCurrentLED->on();
         }
     }
 
     void LEDOff() {
         if(mCurrentLED != 0) {
-            (*mCurrentLED)->off();
+            mCurrentLED->off();
         }
     }
     
@@ -32,7 +34,7 @@ private:
 public:
     void start() {
         mCurrentScaler = 1; //reset scaler to "1"
-        mCurrentLED = mLEDs->begin();
+        mCurrentLED = mLEDs[0];
         LEDOn();
     }
 
@@ -47,6 +49,6 @@ public:
     
     void stop() {
         LEDOff();
-        mCurrentLED = mLEDs->end();
+        mCurrentLED = mLEDs[mCurrentLEDmax-1];
     }
 };

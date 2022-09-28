@@ -2,8 +2,8 @@ class IBlinkProgram {
 protected:
     ILED**  mLEDs;
     ILED*   mCurrentLED;
-    uint8_t mCurrentLEDindex;
-    uint8_t mCurrentLEDmax;
+    uint8_t mCurrentLEDindex = 0;
+    uint8_t mCurrentLEDmax = 3;
 
 protected:
     void setLEDs(ILED** leds) {
